@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport">
+  <title>Reactses</title>
+  <link rel="stylesheet" type="text/css" href="comment.css">
+  <script src="https://unpkg.com/react@15/dist/react.js"></script>
+  <script src="https://unpkg.com/react-dom@15/dist/react-dom.js"></script>
+  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+</head>
+<body>
+  <div id="app"></div>
+</body>
+  <script type="text/babel">
+    //Create  Component
+    var Create = React.createClass({
+      add(){
+        if(this.refs.inputComment.value){
+          const newComment = this.refs.inputComment.value
+          this.props.addComment(newComment)
+          //clears out
+          this.clear()
+        }
+      },
+      clear(){
+        if(this.refs.inputComment.value!=null)
+          this.refs.inputComment.value = ""
+      },
+      render(){
+        return(
+          <div>
+            <h1>New</h1>
+            <input ref="inputComment" />
+            <button onClick={this.add} className="button-success">Add</button>
+          </div>
+        )
+      }
+    })
+    //Comment Component
+    var Comment = React.createClass({
+      getInitialState(){
+        return {edit: false}
+      },
+      showState(){
+        console.log(this.state)
+      },
+      edit(){
+        this.setState({edit: true})
+        this.showState()
+      },
+      remove(){
+        this.props.remove(this.props.index)
+      },
+      save(){
+        this.props.update(this.refs.newComment.value, this.props.index)
+        this.setState({edit: false})
+      },
+      renderEditMode(){
+        return(
+          <div>
+            <div className="commentContainer">
+              <textarea ref="newComment" defaultValue={this.props.children}></textarea>
+              <button onClick={this.save} className="button-success"> Save </button>
+            </div>
+          </div>
+        )
+      },
+      renderNormal(){
+        return(
+          <div>
+            <div className="commentContainer">
+              <div className="commentText">{this.props.children}</div>
+              <button onClick={this.edit} className="button-primary"> Edit </button>
+              <button onClick={this.remove} className="button-danger"> Remove </button>
+            </div>
+          </div>
+        )
+      },
+      render(){
+        if(this.state.edit === false)
+          return this.renderNormal()
+        else
+          return this.renderEditMode()
+      }
+    })
+
+    //Board Component
+    var Board = React.createClass({
+      getInitialState(){
+        return({
+          comments: ['Yakimix', 'Mokja', 'Sodam']
+        })
+      },
+      renderComments(comment,i){
+        return(<Comment key={i}
+                        index={i}
+                        remove={this.remove}
+                        update={this.updateComment}>
+                {comment}
+              </Comment>)
+      },
+      add(newComment){
+        let arr = this.state.comments
+        arr.push(newComment)
+        this.setState({comments: arr})
+      },
+      remove(i){
+        let arr = this.state.comments
+        arr.splice(i,1)
+        this.setState({comments: arr})
+      },
+      updateComment(newComment, i){
+        let arr = this.state.comments
+        arr[i] = newComment
+        this.setState({comments: arr})
+      },
+      render(){
+        return (
+          <div className="board">
+            <Create addComment={this.add} />
+            {this.state.comments.map(this.renderComments)}
+          </div>
+        )
+      }
+    })
+
+    //render
+    ReactDOM.render(
+      <div>
+        <Board></Board>
+      </div>
+      ,document.getElementById('app')
+    )
+  </script>
+</html>
